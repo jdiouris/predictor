@@ -22,7 +22,7 @@ float beta[NJMAX];
 
 int n; // temps
 int nh=6; // nombre d'heures dans le pr仕icteur
-int nj=1; //nombre de jours dans le pr仕icteur
+int nj=2; //nombre de jours dans le pr仕icteur
 int N=nj+nh;
 
 
@@ -51,7 +51,7 @@ float prediction(int nh, int nj, int n)
 }
 
 
-// scenario simple pour g始屍er les 残hantillons de puissance
+// scenario simple pour générerer les éhantillons de puissance
 int h=0;
 
 int nextPuiss()
@@ -83,6 +83,12 @@ void setCoefs()
     for (int i=1; i<=nj; i++) beta[i-1]=W(nh+i-1,0);
 }
 
+Matrix transpose(Matrix a)
+{
+    Matrix r;
+    
+}
+
 
 int main() {
 
@@ -100,6 +106,7 @@ int main() {
 
    for (n=0; n<TMAX; n++) puiss[n]=nextPuiss();
    n=0;
+   pc.printf("N=%d\n",N);
     while(1) {
             pc.printf("n=%d\n",n);
         // Echantillon de puissance
@@ -108,14 +115,22 @@ int main() {
         // Calcul des coefficients
         myled=1;
         wait(0.1);
+        pc.printf("Calc X\n");
         t.reset();
         t.start();
         setX(); // calcul de X
-        //cout << X;
+
         R=gam*R+X*X.transpose();
+
         r=gam*r+X*(double)puiss[n];
-        M=R+0.1*Id;
+
+        for (int i=0; i<N; i++)
+            for (int j=0; j<N; j++)
+               if (i==j) M(i,j)=R(i,j)+0.1;
+               else M(i,j)=R(i,j);
+        //M=R+0.1*Id;
         t1=t.read();
+         pc.printf("Solve\n");
         W=Matrix::solve(M,r);
         t2=t.read();
         // cout << "X=" << X.transpose();
